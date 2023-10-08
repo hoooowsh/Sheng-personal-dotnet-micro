@@ -1,0 +1,13 @@
+POST http://localhost:5009/plan
+Content-Type: application/json
+
+{
+  "name": "Plan One",
+  "content": "Content",
+  "category": "Study",
+  "startDate": "2022-04-08T08:00:00",
+  "endDate": "2022-04-08T08:00:00",
+  "impartanceLevel": 1,
+  "percentComplete": 0.8,
+  "status": "Not finished"
+}

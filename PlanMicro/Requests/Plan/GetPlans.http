@@ -1,0 +1,8 @@
+@id=00000000-0000-0000-0000-000000000000
+POST http://localhost:5009/plan/list
+Content-Type: application/json
+
+{
+  "from": "2022-04-08T08:00:00",
+  "to": "2022-04-08T08:00:00"
+}
