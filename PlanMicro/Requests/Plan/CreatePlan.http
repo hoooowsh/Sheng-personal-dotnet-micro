@@ -7,7 +7,7 @@ Content-Type: application/json
   "category": "Study",
   "startDate": "2022-04-08T08:00:00",
   "endDate": "2022-04-08T08:00:00",
-  "impartanceLevel": 1,
+  "importanceLevel": 1,
   "percentComplete": 0.8,
   "status": "Not finished"
 }
