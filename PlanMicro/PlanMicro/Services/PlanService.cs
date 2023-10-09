@@ -1,4 +1,6 @@
+using ErrorOr;
 using PlanMicro.Models;
+using PlanMicro.ServiceErrors;
 
 namespace PlanMicro.Services;
 
@@ -15,9 +17,13 @@ public class planService : IPlanService
         _plans.Remove(id);
     }
 
-    public Plan GetPlan(Guid id)
+    public ErrorOr<Plan> GetPlan(Guid id)
     {
-        return _plans[id];
+        if (_plans.TryGetValue(id, out var plan))
+        {
+            return plan;
+        }
+        return Errors.Plan.NotFound;
     }
 
     public void UpsertPlan(Plan plan)

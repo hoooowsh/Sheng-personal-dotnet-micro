@@ -1,7 +1,9 @@
 
+using ErrorOr;
 using Microsoft.AspNetCore.Mvc;
 using PlanMicro.Contracts.PlanMicro;
 using PlanMicro.Models;
+using PlanMicro.ServiceErrors;
 using PlanMicro.Services;
 
 namespace PlanMicro.Controllers;
@@ -56,7 +58,17 @@ public class PlanController : ControllerBase
     [HttpGet("{id:guid}")]
     public IActionResult GetPlan(Guid id)
     {
-        Plan plan = _planService.GetPlan(id);
+        // get the plan from database
+        ErrorOr<Plan> getPlanResult = _planService.GetPlan(id);
+
+        // if there is error
+        if (getPlanResult.IsError && getPlanResult.FirstError == Errors.Plan.NotFound)
+        {
+            return NotFound();
+        }
+
+        // if there is not error
+        var plan = getPlanResult.Value;
         var response = new PlanResponse(
             plan.Id,
             plan.Name,

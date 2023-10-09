@@ -21,6 +21,8 @@ if (app.Environment.IsDevelopment())
 
 // app uses
 {
+    // error handler middleware
+    app.UseExceptionHandler("/error");
     app.UseHttpsRedirection();
     app.UseAuthorization();
     app.MapControllers();
