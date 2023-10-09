@@ -1,4 +1,4 @@
-@id=00000000-0000-0000-0000-000000000000
+@id=0aa1eeb4-2505-400a-8cc8-942caa6be0d7
 DELETE http://localhost:5009/plan/{{id}}
 
 

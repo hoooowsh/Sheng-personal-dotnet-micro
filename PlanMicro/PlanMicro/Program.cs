@@ -1,3 +1,5 @@
+using PlanMicro.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // builder adds
@@ -6,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
-
+    builder.Services.AddScoped<IPlanService, planService>();
 }
 
 var app = builder.Build();

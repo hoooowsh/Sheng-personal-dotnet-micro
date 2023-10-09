@@ -6,7 +6,7 @@ public record UpsertPlanRequest(
     string category,
     DateTime startDate,
     DateTime endDate,
-    int impartanceLevel,
+    int importanceLevel,
     double percentComplete,
     string status
 );
