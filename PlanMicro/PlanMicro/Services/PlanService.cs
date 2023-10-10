@@ -7,14 +7,16 @@ namespace PlanMicro.Services;
 public class planService : IPlanService
 {
     private static readonly Dictionary<Guid, Plan> _plans = new();
-    public void CreatePlan(Plan plan)
+    public ErrorOr<Created> CreatePlan(Plan plan)
     {
         _plans.Add(plan.Id, plan);
+        return Result.Created;
     }
 
-    public void DeletePlan(Guid id)
+    public ErrorOr<Deleted> DeletePlan(Guid id)
     {
         _plans.Remove(id);
+        return Result.Deleted;
     }
 
     public ErrorOr<Plan> GetPlan(Guid id)
@@ -26,8 +28,10 @@ public class planService : IPlanService
         return Errors.Plan.NotFound;
     }
 
-    public void UpsertPlan(Plan plan)
+    public ErrorOr<UpsertedPlan> UpsertPlan(Plan plan)
     {
+        var isNewlyCreated = !_plans.ContainsKey(plan.Id);
         _plans[plan.Id] = plan;
+        return new UpsertedPlan(isNewlyCreated);
     }
 }

@@ -8,9 +8,8 @@ using PlanMicro.Services;
 
 namespace PlanMicro.Controllers;
 
-[ApiController]
-[Route("plan")]
-public class PlanController : ControllerBase
+
+public class PlanController : ApiController
 {
     // init database service helper
     private readonly IPlanService _planService;
@@ -37,22 +36,11 @@ public class PlanController : ControllerBase
         );
 
         // Database call
-        _planService.CreatePlan(plan);
-
-        // prepare response using planResponse contract
-        var response = new PlanResponse(
-            plan.Id,
-            plan.Name,
-            plan.Content,
-            plan.Category,
-            plan.InsertDate,
-            plan.StartDate,
-            plan.EndDate,
-            plan.ImportanceLevel,
-            plan.PercentComplete,
-            plan.Status
+        ErrorOr<Created> createPlanResult = _planService.CreatePlan(plan);
+        return createPlanResult.Match(
+            created => CreatedAsGetPlan(plan),
+            errors => Problem(errors)
         );
-        return CreatedAtAction(actionName: nameof(GetPlan), routeValues: new { id = plan.Id }, value: response);
     }
 
     [HttpGet("{id:guid}")]
@@ -61,28 +49,13 @@ public class PlanController : ControllerBase
         // get the plan from database
         ErrorOr<Plan> getPlanResult = _planService.GetPlan(id);
 
-        // if there is error
-        if (getPlanResult.IsError && getPlanResult.FirstError == Errors.Plan.NotFound)
-        {
-            return NotFound();
-        }
-
-        // if there is not error
-        var plan = getPlanResult.Value;
-        var response = new PlanResponse(
-            plan.Id,
-            plan.Name,
-            plan.Content,
-            plan.Category,
-            plan.InsertDate,
-            plan.StartDate,
-            plan.EndDate,
-            plan.ImportanceLevel,
-            plan.PercentComplete,
-            plan.Status
+        return getPlanResult.Match(
+            plan => Ok(MapPlanResponse(plan)),
+            errors => Problem(errors)
         );
-        return Ok(response);
     }
+
+
 
     [HttpPost("/list")]
     public IActionResult GetPlans(GetPlanListRequest request)
@@ -108,16 +81,46 @@ public class PlanController : ControllerBase
         );
 
         // update in database
-        _planService.UpsertPlan(plan);
+        ErrorOr<UpsertedPlan> upsertedPlanResult = _planService.UpsertPlan(plan);
 
-        // TODO: return 201 if new plan was created
-        return Ok(request);
+        return upsertedPlanResult.Match(
+            upserted => upserted.IsNewlyCreated ? CreatedAsGetPlan(plan) : NoContent(),
+            errors => Problem(errors)
+        );
     }
 
     [HttpDelete("{id:guid}")]
     public IActionResult DeletePlan(Guid id)
     {
-        _planService.DeletePlan(id);
-        return Ok(id);
+        ErrorOr<Deleted> deletedPlanResult = _planService.DeletePlan(id);
+        return deletedPlanResult.Match(
+            deleted => NoContent(),
+            errors => Problem(errors)
+        );
+    }
+
+    private static PlanResponse MapPlanResponse(Plan plan)
+    {
+        return new PlanResponse(
+           plan.Id,
+           plan.Name,
+           plan.Content,
+           plan.Category,
+           plan.InsertDate,
+           plan.StartDate,
+           plan.EndDate,
+           plan.ImportanceLevel,
+           plan.PercentComplete,
+           plan.Status
+       );
+    }
+
+    private CreatedAtActionResult CreatedAsGetPlan(Plan plan)
+    {
+        return CreatedAtAction(
+            actionName: nameof(GetPlan),
+            routeValues: new { id = plan.Id },
+            value: MapPlanResponse(plan)
+        );
     }
 }
