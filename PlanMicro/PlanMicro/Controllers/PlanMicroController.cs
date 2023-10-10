@@ -21,19 +21,21 @@ public class PlanController : ApiController
     [HttpPost]
     public IActionResult CreatePlan(CreatePlanRequest request)
     {
-        // Create plan model from request to save data to database
-        var plan = new Plan(
-            Guid.NewGuid(),
+        ErrorOr<Plan> requestToPlanResult = Plan.Create(
             request.name,
             request.content,
             request.category,
-            DateTime.UtcNow,
             request.startDate,
             request.endDate,
             request.importanceLevel,
             request.percentComplete,
             request.status
         );
+        if (requestToPlanResult.IsError)
+        {
+            return Problem(requestToPlanResult.Errors);
+        }
+        var plan = requestToPlanResult.Value;
 
         // Database call
         ErrorOr<Created> createPlanResult = _planService.CreatePlan(plan);
@@ -66,19 +68,23 @@ public class PlanController : ApiController
     [HttpPut("{id:guid}")]
     public IActionResult UpsertPlan(Guid id, UpsertPlanRequest request)
     {
-        // Create plan model from request to save data to database
-        var plan = new Plan(
-            id,
+        ErrorOr<Plan> requestToPlanResult = Plan.Create(
             request.name,
             request.content,
             request.category,
-            DateTime.UtcNow,
             request.startDate,
             request.endDate,
             request.importanceLevel,
             request.percentComplete,
-            request.status
+            request.status,
+            id
         );
+
+        if (requestToPlanResult.IsError)
+        {
+            return Problem(requestToPlanResult.Errors);
+        }
+        var plan = requestToPlanResult.Value;
 
         // update in database
         ErrorOr<UpsertedPlan> upsertedPlanResult = _planService.UpsertPlan(plan);
